@@ -14,25 +14,13 @@ def f1(z):
 def f2(z):
     return 0.25*((7*z + 2) - (5*z+2) * np.exp(1j*np.pi * z))
 
-def Reset():
-    globals().pop('extent')
-    globals().pop('ax')
-
-
-if 'extent' not in locals():
-    extent = [-5,5,-5,5]
-elif 'ax' in locals():
-    try:
-        extent = list(ax.get_xlim()) + list(ax.get_ylim())
-    except NameError:
-        pass
-
+extent = [-5,5,-5,5]
 resolution = 500
-numIter = 50
+escapeRange = 200
 
-def Iteration(Z,I,n,f):
+def Iteration(N,Z,I,n,f):
     Z.flat[I] = f(Z.flat[I])
-    escaped = np.abs(Z.flat[I]) > 200
+    escaped = np.abs(Z.flat[I]) > escapeRange
     N.flat[I[escaped]] = n
     return I[np.logical_not(escaped)]
 
@@ -44,19 +32,38 @@ def Run(numIter):
     I = np.arange(len(Z.flat))
     N = np.ones(Z.shape) * np.nan
     for i in range(numIter):
-        I = Iteration(Z,I,i,f2)
+        I = Iteration(N,Z,I,i,f2)
+    return x,y,N
 
+def DrawIntegers():
+    if (extent[2] > 0) == (extent[3]>0):
+        return
+    a = np.arange(int(np.ceil(extent[0])),int(np.ceil(extent[1])))
+    ax.plot(a,np.zeros(a.shape),'om')
+
+x,y,N = Run(100)
 plt.figure()
 ax = plt.axes()
-plt.imshow(N,interpolation='none',extent=extent,origin='lower')
+ax.imshow(N,interpolation='none',extent=extent,origin='lower')
+DrawIntegers()
 
 #def on_xlims_change(axes):
 #    print ("updated xlims: ", axes.get_xlim())
 
 def on_ylims_change(axes):
-    print ("updated xlims: ", axes.get_xlim())
-    print ("updated ylims: ", axes.get_ylim())
+    global extent
+#    print ("updated xlims: ", axes.get_xlim())
+#    print ("updated ylims: ", axes.get_ylim())
+    extent = list(axes.get_xlim()) + list(axes.get_ylim())
+    x,y,N = Run(100)
+    ax.clear()
+    ax.callbacks.disconnect('ylim_changed')
+    ax.imshow(N,interpolation='none',extent=extent,origin='lower')
+    DrawIntegers()
+    ax.callbacks.connect('ylim_changed', on_ylims_change)
 
 #ax.callbacks.connect('xlim_changed', on_xlims_change)
 ax.callbacks.connect('ylim_changed', on_ylims_change)
+
+
 
