@@ -17,6 +17,7 @@ def f2(z):
 extent = [-5,5,-5,5]
 resolution = 500
 escapeRange = 200
+numIter=100
 
 def Iteration(N,Z,I,n,f):
     Z.flat[I] = f(Z.flat[I])
@@ -41,7 +42,7 @@ def DrawIntegers():
     a = np.arange(int(np.ceil(extent[0])),int(np.ceil(extent[1])))
     ax.plot(a,np.zeros(a.shape),'om')
 
-x,y,N = Run(100)
+x,y,N = Run(numIter)
 plt.figure()
 ax = plt.axes()
 ax.imshow(N,interpolation='none',extent=extent,origin='lower')
@@ -55,7 +56,7 @@ def on_ylims_change(axes):
 #    print ("updated xlims: ", axes.get_xlim())
 #    print ("updated ylims: ", axes.get_ylim())
     extent = list(axes.get_xlim()) + list(axes.get_ylim())
-    x,y,N = Run(100)
+    x,y,N = Run(numIter)
     ax.clear()
     ax.callbacks.disconnect('ylim_changed')
     ax.imshow(N,interpolation='none',extent=extent,origin='lower')
