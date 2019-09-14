@@ -6,18 +6,34 @@ Created on Wed Sep 11 22:27:54 2019
 """
 
 import numpy as np
+from numpy import sqrt,cos,sin,pi,exp
+I = 1j
 from matplotlib import pyplot as plt
 
+# f1 and f2 are for
+# n <- n/2 if n even, 3n+1 if odd
 def f1(z):
     return 0.25*((7*z + 2) - (5*z+2) * np.cos(z*np.pi))
 
 def f2(z):
     return 0.25*((7*z + 2) - (5*z+2) * np.exp(1j*np.pi * z))
 
+#f3 and f4 are for 
+# n <- 2n/3 if n%3 == 0
+# n <- (4n-1)/3 if n%3 == 1
+# n <- (4n+1)/3 if n%3 == 2
+
+def f3(n):
+    return -4*n*cos(2*pi*n/3)/9 + 10*n/9 - 2*sqrt(3)*sin(2*pi*n/3)/9
+
+def f4(n):
+    return 10*n*exp(2*I*pi*n)/9 + (-2*n*(2 - (-1)**(2/3) + (-1)**(1/3)) + 3*(-1)**(2/3) + 3*(-1)**(1/3))*exp(2*I*pi*n/3)/27 - (2*n*(2 - (-1)**(2/3) + (-1)**(1/3)) + 3*(-1)**(2/3) + 3*(-1)**(1/3))*exp(4*I*pi*n/3)/27
+
 extent = [-5,5,-5,5]
 resolution = 500
-escapeRange = 200
+escapeRange = 100
 numIter=100
+useFunction = f4
 
 def Iteration(N,Z,I,n,f):
     Z.flat[I] = f(Z.flat[I])
@@ -33,7 +49,7 @@ def Run(numIter):
     I = np.arange(len(Z.flat))
     N = np.ones(Z.shape) * np.nan
     for i in range(numIter):
-        I = Iteration(N,Z,I,i,f2)
+        I = Iteration(N,Z,I,i,useFunction)
     return x,y,N
 
 def DrawIntegers():
